@@ -1,0 +1,9 @@
+{
+  "name": "lb-typebot-webhook",
+  "version": "1.0.0",
+  "description": "Webhook que recebe leads do Typebot e cria no CRM da LB Marketplace",
+  "private": true,
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}
