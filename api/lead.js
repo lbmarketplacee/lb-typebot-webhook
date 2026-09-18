@@ -55,14 +55,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Monta um texto legível com as respostas extras para já aparecer nas Notas do card do lead
-    let notasTexto = 'Lead recebido automaticamente via Typebot.';
-    const chavesExtras = Object.keys(respostasExtras);
-    if (chavesExtras.length > 0) {
-      const linhasExtras = chavesExtras.map(chave => `• ${chave}: ${respostasExtras[chave]}`).join('\n');
-      notasTexto += '\n\nRespostas do Typebot:\n' + linhasExtras;
-    }
-
     const db = getDb();
     const novoLead = {
       nome: nome.trim(),
@@ -74,7 +66,7 @@ export default async function handler(req, res) {
       tipoServico: tipoServico.trim(),
       origem: 'Typebot',
       valor: 0,
-      notas: notasTexto,
+      notas: 'Lead recebido automaticamente via Typebot.',
       respostasTypebot: respostasExtras,
       stage: 'novo',
       criadoEm: FieldValue.serverTimestamp(),
