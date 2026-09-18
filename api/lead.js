@@ -38,6 +38,31 @@ export default async function handler(req, res) {
       return res.status(400).json({ erro: 'Campo "nome" é obrigatório.' });
     }
 
+    // Qualquer outro campo que o Typebot mandar (fora os já mapeados acima) é
+    // capturado automaticamente aqui, sem precisar mexer no código depois.
+    const CAMPOS_JA_MAPEADOS = new Set([
+      'nome','name','Nome',
+      'whatsapp','telefone','phone','WhatsApp',
+      'email','Email',
+      'instagram','Instagram',
+      'nicho','Nicho',
+      'tipoServico','tipo_servico'
+    ]);
+    const respostasExtras = {};
+    for (const chave in body) {
+      if (!CAMPOS_JA_MAPEADOS.has(chave) && body[chave] !== undefined && body[chave] !== null && String(body[chave]).trim() !== '') {
+        respostasExtras[chave] = String(body[chave]).trim();
+      }
+    }
+
+    // Monta um texto legível com as respostas extras para já aparecer nas Notas do card do lead
+    let notasTexto = 'Lead recebido automaticamente via Typebot.';
+    const chavesExtras = Object.keys(respostasExtras);
+    if (chavesExtras.length > 0) {
+      const linhasExtras = chavesExtras.map(chave => `• ${chave}: ${respostasExtras[chave]}`).join('\n');
+      notasTexto += '\n\nRespostas do Typebot:\n' + linhasExtras;
+    }
+
     const db = getDb();
     const novoLead = {
       nome: nome.trim(),
@@ -49,7 +74,8 @@ export default async function handler(req, res) {
       tipoServico: tipoServico.trim(),
       origem: 'Typebot',
       valor: 0,
-      notas: 'Lead recebido automaticamente via Typebot.',
+      notas: notasTexto,
+      respostasTypebot: respostasExtras,
       stage: 'novo',
       criadoEm: FieldValue.serverTimestamp(),
       createdDate: new Date().toISOString().slice(0, 10)
